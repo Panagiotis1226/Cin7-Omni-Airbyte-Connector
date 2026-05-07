@@ -1,0 +1,1918 @@
+version: 7.10.0
+
+type: DeclarativeSource
+
+description: >-
+  This is the Cin7 Omni source that ingests data from the Cin7 Omni API.
+
+  Cin7 Omni is a cloud-based inventory management platform. To use this source,
+  you must first create an account at https://www.cin7.com/. Once logged in,
+  navigate to Integrations -> API to obtain your Account ID and API Key. You can
+  find more information about the API here https://api.cin7.com/api
+
+check:
+  type: CheckStream
+  stream_names:
+    - contacts
+
+definitions:
+  linked:
+    HttpRequester:
+      authenticator:
+        type: BasicHttpAuthenticator
+        username: "{{ config[\"username\"] }}"
+        password: "{{ config[\"api_key\"] }}"
+    SimpleRetriever:
+      paginator:
+        type: DefaultPaginator
+        page_size_option:
+          type: RequestOption
+          field_name: rows
+          inject_into: request_parameter
+        page_token_option:
+          type: RequestOption
+          field_name: page
+          inject_into: request_parameter
+        pagination_strategy:
+          type: PageIncrement
+          page_size: 250
+          start_from_page: 1
+          inject_on_first_request: true
+
+streams:
+  - type: DeclarativeStream
+    name: contacts
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/Contacts
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          type:
+            type:
+              - string
+              - "null"
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          isActive:
+            type:
+              - boolean
+              - "null"
+          company:
+            type:
+              - string
+              - "null"
+          firstName:
+            type:
+              - string
+              - "null"
+          lastName:
+            type:
+              - string
+              - "null"
+          jobTitle:
+            type:
+              - string
+              - "null"
+          email:
+            type:
+              - string
+              - "null"
+          website:
+            type:
+              - string
+              - "null"
+          phone:
+            type:
+              - string
+              - "null"
+          fax:
+            type:
+              - string
+              - "null"
+          mobile:
+            type:
+              - string
+              - "null"
+          address1:
+            type:
+              - string
+              - "null"
+          address2:
+            type:
+              - string
+              - "null"
+          city:
+            type:
+              - string
+              - "null"
+          state:
+            type:
+              - string
+              - "null"
+          postCode:
+            type:
+              - string
+              - "null"
+          country:
+            type:
+              - string
+              - "null"
+          postalAddress1:
+            type:
+              - string
+              - "null"
+          postalAddress2:
+            type:
+              - string
+              - "null"
+          postalCity:
+            type:
+              - string
+              - "null"
+          postalPostCode:
+            type:
+              - string
+              - "null"
+          postalState:
+            type:
+              - string
+              - "null"
+          postalCountry:
+            type:
+              - string
+              - "null"
+          notes:
+            type:
+              - string
+              - "null"
+          integrationRef:
+            type:
+              - string
+              - "null"
+          customFields:
+            type:
+              - object
+              - "null"
+          secondaryContacts:
+            type:
+              - array
+              - "null"
+          salesPersonId:
+            type:
+              - integer
+              - "null"
+          accountNumber:
+            type:
+              - string
+              - "null"
+          billingId:
+            type:
+              - integer
+              - "null"
+          billingCompany:
+            type:
+              - string
+              - "null"
+          accountsFirstName:
+            type:
+              - string
+              - "null"
+          accountsLastName:
+            type:
+              - string
+              - "null"
+          billingEmail:
+            type:
+              - string
+              - "null"
+          accountsPhone:
+            type:
+              - string
+              - "null"
+          billingCostCenter:
+            type:
+              - string
+              - "null"
+          costCenter:
+            type:
+              - string
+              - "null"
+          priceColumn:
+            type:
+              - string
+              - "null"
+          percentageOff:
+            type:
+              - number
+              - "null"
+          paymentTerms:
+            type:
+              - string
+              - "null"
+          taxStatus:
+            type:
+              - string
+              - "null"
+          taxNumber:
+            type:
+              - string
+              - "null"
+          creditLimit:
+            type:
+              - number
+              - "null"
+          balanceOwing:
+            type:
+              - number
+              - "null"
+          onHold:
+            type:
+              - boolean
+              - "null"
+          group:
+            type:
+              - string
+              - "null"
+          subGroup:
+            type:
+              - string
+              - "null"
+          stages:
+            type:
+              - string
+              - "null"
+          accountingIntegrationId:
+            type:
+              - object
+              - "null"
+            properties:
+              xero:
+                type:
+                  - string
+                  - "null"
+              quickBooksOnline:
+                type:
+                  - string
+                  - "null"
+              quickBooksDesktop:
+                type:
+                  - string
+                  - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: products
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/Products
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          description:
+            type:
+              - string
+              - "null"
+          id:
+            type: integer
+          status:
+            type:
+              - string
+              - "null"
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          styleCode:
+            type:
+              - string
+              - "null"
+          name:
+            type:
+              - string
+              - "null"
+          tags:
+            type:
+              - string
+              - "null"
+          images:
+            type:
+              - array
+              - "null"
+          supplierId:
+            type:
+              - integer
+              - "null"
+          brand:
+            type:
+              - string
+              - "null"
+          category:
+            type:
+              - string
+              - "null"
+          subCategory:
+            type:
+              - string
+              - "null"
+          categoryIdArray:
+            type:
+              - array
+              - "null"
+            items:
+              type:
+                - integer
+                - "null"
+          channels:
+            type:
+              - string
+              - "null"
+          weight:
+            type:
+              - number
+              - "null"
+          height:
+            type:
+              - number
+              - "null"
+          width:
+            type:
+              - number
+              - "null"
+          length:
+            type:
+              - number
+              - "null"
+          volume:
+            type:
+              - number
+              - "null"
+          stockControl:
+            type:
+              - integer
+              - "null"
+          orderType:
+            type:
+              - string
+              - "null"
+          productType:
+            type:
+              - string
+              - "null"
+          productSubtype:
+            type:
+              - string
+              - "null"
+          projectName:
+            type:
+              - string
+              - "null"
+          optionLabel1:
+            type:
+              - string
+              - "null"
+          optionLabel2:
+            type:
+              - string
+              - "null"
+          optionLabel3:
+            type:
+              - string
+              - "null"
+          salesAccount:
+            type:
+              - string
+              - "null"
+          purchasesAccount:
+            type:
+              - string
+              - "null"
+          importCustomsDuty:
+            type:
+              - string
+              - "null"
+          sizeRangeId:
+            type:
+              - integer
+              - "null"
+          customFields:
+            type:
+              - object
+              - "null"
+          productOptions:
+            type:
+              - array
+              - "null"
+            items:
+              type:
+                - object
+                - "null"
+              properties:
+                id:
+                  type:
+                    - integer
+                    - "null"
+                createdDate:
+                  type:
+                    - string
+                    - "null"
+                modifiedDate:
+                  type:
+                    - string
+                    - "null"
+                status:
+                  type:
+                    - string
+                    - "null"
+                productId:
+                  type:
+                    - integer
+                    - "null"
+                code:
+                  type:
+                    - string
+                    - "null"
+                barcode:
+                  type:
+                    - string
+                    - "null"
+                option1:
+                  type:
+                    - string
+                    - "null"
+                option2:
+                  type:
+                    - string
+                    - "null"
+                option3:
+                  type:
+                    - string
+                    - "null"
+                retailPrice:
+                  type:
+                    - number
+                    - "null"
+                wholesalePrice:
+                  type:
+                    - number
+                    - "null"
+                stockAvailable:
+                  type:
+                    - number
+                    - "null"
+                stockOnHand:
+                  type:
+                    - number
+                    - "null"
+                priceColumns:
+                  type:
+                    - object
+                    - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: sales_orders
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/SalesOrders
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          createdBy:
+            type:
+              - integer
+              - "null"
+          processedBy:
+            type:
+              - integer
+              - "null"
+          isApproved:
+            type:
+              - boolean
+              - "null"
+          reference:
+            type:
+              - string
+              - "null"
+          memberId:
+            type:
+              - integer
+              - "null"
+          firstName:
+            type:
+              - string
+              - "null"
+          lastName:
+            type:
+              - string
+              - "null"
+          company:
+            type:
+              - string
+              - "null"
+          email:
+            type:
+              - string
+              - "null"
+          phone:
+            type:
+              - string
+              - "null"
+          mobile:
+            type:
+              - string
+              - "null"
+          fax:
+            type:
+              - string
+              - "null"
+          deliveryFirstName:
+            type:
+              - string
+              - "null"
+          deliveryLastName:
+            type:
+              - string
+              - "null"
+          deliveryCompany:
+            type:
+              - string
+              - "null"
+          deliveryAddress1:
+            type:
+              - string
+              - "null"
+          deliveryAddress2:
+            type:
+              - string
+              - "null"
+          deliveryCity:
+            type:
+              - string
+              - "null"
+          deliveryState:
+            type:
+              - string
+              - "null"
+          deliveryPostalCode:
+            type:
+              - string
+              - "null"
+          deliveryCountry:
+            type:
+              - string
+              - "null"
+          billingFirstName:
+            type:
+              - string
+              - "null"
+          billingLastName:
+            type:
+              - string
+              - "null"
+          billingCompany:
+            type:
+              - string
+              - "null"
+          billingAddress1:
+            type:
+              - string
+              - "null"
+          billingAddress2:
+            type:
+              - string
+              - "null"
+          billingCity:
+            type:
+              - string
+              - "null"
+          billingPostalCode:
+            type:
+              - string
+              - "null"
+          billingState:
+            type:
+              - string
+              - "null"
+          billingCountry:
+            type:
+              - string
+              - "null"
+          branchId:
+            type:
+              - integer
+              - "null"
+          branchEmail:
+            type:
+              - string
+              - "null"
+          projectName:
+            type:
+              - string
+              - "null"
+          trackingCode:
+            type:
+              - string
+              - "null"
+          internalComments:
+            type:
+              - string
+              - "null"
+          productTotal:
+            type:
+              - number
+              - "null"
+          freightTotal:
+            type:
+              - number
+              - "null"
+          freightDescription:
+            type:
+              - string
+              - "null"
+          surcharge:
+            type:
+              - number
+              - "null"
+          surchargeDescription:
+            type:
+              - string
+              - "null"
+          discountTotal:
+            type:
+              - number
+              - "null"
+          discountDescription:
+            type:
+              - string
+              - "null"
+          total:
+            type:
+              - number
+              - "null"
+          currencyCode:
+            type:
+              - string
+              - "null"
+          currencyRate:
+            type:
+              - number
+              - "null"
+          currencySymbol:
+            type:
+              - string
+              - "null"
+          taxStatus:
+            type:
+              - string
+              - "null"
+          taxRate:
+            type:
+              - number
+              - "null"
+          source:
+            type:
+              - string
+              - "null"
+          customFields:
+            type:
+              - object
+              - "null"
+          isVoid:
+            type:
+              - boolean
+              - "null"
+          accountingAttributes:
+            type:
+              - object
+              - "null"
+          status:
+            type:
+              - string
+              - "null"
+          stage:
+            type:
+              - string
+              - "null"
+          invoiceDate:
+            type:
+              - string
+              - "null"
+          invoiceNumber:
+            type:
+              - integer
+              - "null"
+          dispatchedDate:
+            type:
+              - string
+              - "null"
+          logisticsCarrier:
+            type:
+              - string
+              - "null"
+          logisticsStatus:
+            type:
+              - integer
+              - "null"
+          salesPersonId:
+            type:
+              - integer
+              - "null"
+          paymentTerms:
+            type:
+              - string
+              - "null"
+          customerOrderNo:
+            type:
+              - string
+              - "null"
+          voucherCode:
+            type:
+              - string
+              - "null"
+          deliveryInstructions:
+            type:
+              - string
+              - "null"
+          cancellationDate:
+            type:
+              - string
+              - "null"
+          lineItems:
+            type:
+              - array
+              - "null"
+            items:
+              type:
+                - object
+                - "null"
+              properties:
+                id:
+                  type:
+                    - integer
+                    - "null"
+                createdDate:
+                  type:
+                    - string
+                    - "null"
+                transactionId:
+                  type:
+                    - integer
+                    - "null"
+                productId:
+                  type:
+                    - integer
+                    - "null"
+                productOptionId:
+                  type:
+                    - integer
+                    - "null"
+                code:
+                  type:
+                    - string
+                    - "null"
+                name:
+                  type:
+                    - string
+                    - "null"
+                qty:
+                  type:
+                    - number
+                    - "null"
+                unitCost:
+                  type:
+                    - number
+                    - "null"
+                unitPrice:
+                  type:
+                    - number
+                    - "null"
+                discount:
+                  type:
+                    - number
+                    - "null"
+                taxRate:
+                  type:
+                    - number
+                    - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: purchase_orders
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/PurchaseOrders
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          status:
+            type:
+              - string
+              - "null"
+          reference:
+            type:
+              - string
+              - "null"
+          supplierId:
+            type:
+              - integer
+              - "null"
+          total:
+            type:
+              - number
+              - "null"
+          currencyCode:
+            type:
+              - string
+              - "null"
+          lineItems:
+            type:
+              - array
+              - "null"
+            items:
+              type:
+                - object
+                - "null"
+              properties:
+                id:
+                  type:
+                    - integer
+                    - "null"
+                productId:
+                  type:
+                    - integer
+                    - "null"
+                productOptionId:
+                  type:
+                    - integer
+                    - "null"
+                qty:
+                  type:
+                    - number
+                    - "null"
+                unitCost:
+                  type:
+                    - number
+                    - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: stock
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/Stock
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - productId
+      - productOptionId
+      - branchId
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required: []
+        properties:
+          productId:
+            type:
+              - integer
+              - "null"
+          productOptionId:
+            type:
+              - integer
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          styleCode:
+            type:
+              - string
+              - "null"
+          code:
+            type:
+              - string
+              - "null"
+          barcode:
+            type:
+              - string
+              - "null"
+          branchId:
+            type:
+              - integer
+              - "null"
+          branchName:
+            type:
+              - string
+              - "null"
+          productName:
+            type:
+              - string
+              - "null"
+          option1:
+            type:
+              - string
+              - "null"
+          option2:
+            type:
+              - string
+              - "null"
+          option3:
+            type:
+              - string
+              - "null"
+          size:
+            type:
+              - string
+              - "null"
+          available:
+            type:
+              - number
+              - "null"
+          stockOnHand:
+            type:
+              - number
+              - "null"
+          openSales:
+            type:
+              - number
+              - "null"
+          incoming:
+            type:
+              - number
+              - "null"
+          virtual:
+            type:
+              - number
+              - "null"
+          holding:
+            type:
+              - number
+              - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: payments
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/Payments
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          amount:
+            type:
+              - number
+              - "null"
+          reference:
+            type:
+              - string
+              - "null"
+          status:
+            type:
+              - string
+              - "null"
+          currencyCode:
+            type:
+              - string
+              - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: credit_notes
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/CreditNotes
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          status:
+            type:
+              - string
+              - "null"
+          total:
+            type:
+              - number
+              - "null"
+          currencyCode:
+            type:
+              - string
+              - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: quotes
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/Quotes
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          status:
+            type:
+              - string
+              - "null"
+          total:
+            type:
+              - number
+              - "null"
+          currencyCode:
+            type:
+              - string
+              - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: branches
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/Branches
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          name:
+            type:
+              - string
+              - "null"
+          isActive:
+            type:
+              - boolean
+              - "null"
+          address1:
+            type:
+              - string
+              - "null"
+          address2:
+            type:
+              - string
+              - "null"
+          city:
+            type:
+              - string
+              - "null"
+          state:
+            type:
+              - string
+              - "null"
+          postCode:
+            type:
+              - string
+              - "null"
+          country:
+            type:
+              - string
+              - "null"
+          phone:
+            type:
+              - string
+              - "null"
+          email:
+            type:
+              - string
+              - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: branch_transfers
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/BranchTransfers
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          status:
+            type:
+              - string
+              - "null"
+          fromBranchId:
+            type:
+              - integer
+              - "null"
+          toBranchId:
+            type:
+              - integer
+              - "null"
+          lineItems:
+            type:
+              - array
+              - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: adjustments
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/Adjustments
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          status:
+            type:
+              - string
+              - "null"
+          branchId:
+            type:
+              - integer
+              - "null"
+          lineItems:
+            type:
+              - array
+              - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: bom_masters
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v2/BomMasters
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          productId:
+            type:
+              - integer
+              - "null"
+          name:
+            type:
+              - string
+              - "null"
+          components:
+            type:
+              - array
+              - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: production_jobs
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/ProductionJobs
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          status:
+            type:
+              - string
+              - "null"
+          branchId:
+            type:
+              - integer
+              - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: product_categories
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/ProductCategories
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          name:
+            type:
+              - string
+              - "null"
+          parentId:
+            type:
+              - integer
+              - "null"
+          isActive:
+            type:
+              - boolean
+              - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: product_options
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/ProductOptions
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          productId:
+            type:
+              - integer
+              - "null"
+          code:
+            type:
+              - string
+              - "null"
+          barcode:
+            type:
+              - string
+              - "null"
+          option1:
+            type:
+              - string
+              - "null"
+          option2:
+            type:
+              - string
+              - "null"
+          option3:
+            type:
+              - string
+              - "null"
+          retailPrice:
+            type:
+              - number
+              - "null"
+          stockAvailable:
+            type:
+              - number
+              - "null"
+          stockOnHand:
+            type:
+              - number
+              - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: serial_numbers
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/SerialNumbers
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          serialNumber:
+            type:
+              - string
+              - "null"
+          productId:
+            type:
+              - integer
+              - "null"
+          productOptionId:
+            type:
+              - integer
+              - "null"
+          branchId:
+            type:
+              - integer
+              - "null"
+          status:
+            type:
+              - string
+              - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: size_ranges
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/SizeRanges
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          name:
+            type:
+              - string
+              - "null"
+          sizes:
+            type:
+              - array
+              - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: users
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/Users
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          firstName:
+            type:
+              - string
+              - "null"
+          lastName:
+            type:
+              - string
+              - "null"
+          email:
+            type:
+              - string
+              - "null"
+          isActive:
+            type:
+              - boolean
+              - "null"
+          role:
+            type:
+              - string
+              - "null"
+        additionalProperties: true
+  - type: DeclarativeStream
+    name: vouchers
+    retriever:
+      type: SimpleRetriever
+      decoder:
+        type: JsonDecoder
+      paginator:
+        $ref: "#/definitions/linked/SimpleRetriever/paginator"
+      requester:
+        type: HttpRequester
+        http_method: GET
+        authenticator:
+          $ref: "#/definitions/linked/HttpRequester/authenticator"
+        url: https://api.cin7.com/api/v1/Voucher
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+    primary_key:
+      - id
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        $schema: http://json-schema.org/schema#
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          createdDate:
+            type:
+              - string
+              - "null"
+          modifiedDate:
+            type:
+              - string
+              - "null"
+          code:
+            type:
+              - string
+              - "null"
+          value:
+            type:
+              - number
+              - "null"
+          isActive:
+            type:
+              - boolean
+              - "null"
+        additionalProperties: true
+
+spec:
+  type: Spec
+  connection_specification:
+    type: object
+    $schema: http://json-schema.org/draft-07/schema#
+    required:
+      - username
+      - api_key
+    properties:
+      username:
+        type: string
+        description: Your Cin7 Omni Account ID used as the Basic Auth username.
+        order: 0
+        title: Account ID (Username)
+      api_key:
+        type: string
+        description: Your Cin7 Omni API Key used as the Basic Auth password.
+        order: 1
+        title: API Key
+        airbyte_secret: true
+    additionalProperties: true
+
+metadata:
+  autoImportSchema:
+    contacts: true
+    products: true
+    sales_orders: true
+    purchase_orders: true
+    stock: true
+    payments: true
+    credit_notes: true
+    quotes: true
+    branches: true
+    branch_transfers: true
+    adjustments: true
+    bom_masters: true
+    production_jobs: true
+    product_categories: true
+    product_options: true
+    serial_numbers: true
+    size_ranges: true
+    users: true
+    vouchers: true
+
+api_budget:
+  type: HTTPAPIBudget
+  policies:
+    - type: MovingWindowCallRatePolicy
+      rates:
+        - limit: 3
+          interval: PT1S
+        - limit: 60
+          interval: PT1M
+        - limit: 5000
+          interval: PT24H
+      matchers:
+        - method: GET
+          url_path_pattern: .*
+  status_codes_for_ratelimit_hit:
+    - 429
