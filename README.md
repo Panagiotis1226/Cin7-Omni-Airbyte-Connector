@@ -1,6 +1,6 @@
 # Cin7 Omni Airbyte Connector
 
-A custom Airbyte source connector for [Cin7 Omni](https://www.cin7.com/), a cloud-based inventory management platform. This connector uses the [Cin7 Omni REST API](https://api.cin7.com/api) to sync data into your data warehouse.
+A custom Airbyte source connector (forked from the original Cin7 Connector) for [Cin7 Omni](https://www.cin7.com/), a cloud-based inventory management platform. This connector uses the [Cin7 Omni REST API](https://api.cin7.com/api) to sync data into your data warehouse.
 
 ---
 
