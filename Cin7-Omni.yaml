@@ -38,6 +38,27 @@ definitions:
           page_size: 250
           start_from_page: 1
           inject_on_first_request: true
+  incremental_sync_base:
+    type: DatetimeBasedCursor
+    cursor_field: modifiedDate
+    datetime_format: "%Y-%m-%dT%H:%M:%SZ"
+    cursor_datetime_formats:
+      - "%Y-%m-%dT%H:%M:%SZ"
+      - "%Y-%m-%dT%H:%M:%S.%fZ"
+      - "%Y-%m-%dT%H:%M:%S%z"
+      - "%Y-%m-%d"
+    start_datetime:
+      type: MinMaxDatetime
+      datetime: "{{ config.get('start_date', '2015-01-01T00:00:00Z') }}"
+      datetime_format: "%Y-%m-%dT%H:%M:%SZ"
+    end_datetime:
+      type: MinMaxDatetime
+      datetime: "{{ now_utc().strftime('%Y-%m-%dT%H:%M:%SZ') }}"
+      datetime_format: "%Y-%m-%dT%H:%M:%SZ"
+    lookback_window: P1D
+  incremental_request_parameters:
+    where: "modifiedDate>='{{ stream_interval.start_time }}'"
+    order: modifiedDate
 
 streams:
   - type: DeclarativeStream
@@ -54,11 +75,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/Contacts
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -303,11 +328,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/Products
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -536,11 +565,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/SalesOrders
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -893,11 +926,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/PurchaseOrders
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -982,11 +1019,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/Stock
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - productId
       - productOptionId
@@ -1089,11 +1130,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/Payments
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -1145,11 +1190,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/CreditNotes
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -1197,11 +1246,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/Quotes
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -1249,11 +1302,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/Branches
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -1329,11 +1386,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/BranchTransfers
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -1385,11 +1446,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/Adjustments
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -1437,11 +1502,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v2/BomMasters
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -1489,11 +1558,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/ProductionJobs
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -1581,11 +1654,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/ProductOptions
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -1657,11 +1734,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/SerialNumbers
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -1757,11 +1838,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/Users
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -1817,11 +1902,15 @@ streams:
         authenticator:
           $ref: "#/definitions/linked/HttpRequester/authenticator"
         url: https://api.cin7.com/api/v1/Voucher
+        request_parameters:
+          $ref: "#/definitions/incremental_request_parameters"
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path: []
+    incremental_sync:
+      $ref: "#/definitions/incremental_sync_base"
     primary_key:
       - id
     schema_loader:
@@ -1876,6 +1965,18 @@ spec:
         order: 1
         title: API Key
         airbyte_secret: true
+      start_date:
+        type: string
+        title: Start Date
+        description: >-
+          UTC date-time (e.g. 2024-01-01T00:00:00Z) from which to start syncing
+          data for incremental streams. Records modified before this date are
+          not synced. Defaults to 2015-01-01T00:00:00Z if not set.
+        format: date-time
+        pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$
+        examples:
+          - "2024-01-01T00:00:00Z"
+        order: 2
     additionalProperties: true
 
 metadata:

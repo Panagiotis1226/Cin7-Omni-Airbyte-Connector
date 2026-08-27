@@ -35,6 +35,7 @@ A custom Airbyte source connector (forked from the original Cin7 Connector) for 
 |---|---|---|
 | `username` | Your Cin7 Omni **Account ID** (used as Basic Auth username) | ✅ |
 | `api_key` | Your Cin7 Omni **API Key** (used as Basic Auth password) | ✅ |
+| `start_date` | UTC date-time (`2024-01-01T00:00:00Z`) from which incremental streams start syncing. Defaults to `2015-01-01T00:00:00Z` | — |
 
 ---
 
@@ -45,29 +46,44 @@ All streams use:
 - **HTTP Method**: `GET`
 - **Response format**: Flat JSON array
 
-| Stream Name | Endpoint | Primary Key |
-|---|---|---|
-| `contacts` | `GET /v1/Contacts` | `id` |
-| `products` | `GET /v1/Products` | `id` |
-| `sales_orders` | `GET /v1/SalesOrders` | `id` |
-| `purchase_orders` | `GET /v1/PurchaseOrders` | `id` |
-| `stock` | `GET /v1/Stock` | `productId`, `productOptionId`, `branchId` |
-| `payments` | `GET /v1/Payments` | `id` |
-| `credit_notes` | `GET /v1/CreditNotes` | `id` |
-| `quotes` | `GET /v1/Quotes` | `id` |
-| `branches` | `GET /v1/Branches` | `id` |
-| `branch_transfers` | `GET /v1/BranchTransfers` | `id` |
-| `adjustments` | `GET /v1/Adjustments` | `id` |
-| `bom_masters` | `GET /v2/BomMasters` | `id` |
-| `production_jobs` | `GET /v1/ProductionJobs` | `id` |
-| `product_categories` | `GET /v1/ProductCategories` | `id` |
-| `product_options` | `GET /v1/ProductOptions` | `id` |
-| `serial_numbers` | `GET /v1/SerialNumbers` | `id` |
-| `size_ranges` | `GET /v1/SizeRanges` | `id` |
-| `users` | `GET /v1/Users` | `id` |
-| `vouchers` | `GET /v1/Voucher` | `id` |
+| Stream Name | Endpoint | Primary Key | Sync Modes |
+|---|---|---|---|
+| `contacts` | `GET /v1/Contacts` | `id` | Full Refresh, Incremental |
+| `products` | `GET /v1/Products` | `id` | Full Refresh, Incremental |
+| `sales_orders` | `GET /v1/SalesOrders` | `id` | Full Refresh, Incremental |
+| `purchase_orders` | `GET /v1/PurchaseOrders` | `id` | Full Refresh, Incremental |
+| `stock` | `GET /v1/Stock` | `productId`, `productOptionId`, `branchId` | Full Refresh, Incremental |
+| `payments` | `GET /v1/Payments` | `id` | Full Refresh, Incremental |
+| `credit_notes` | `GET /v1/CreditNotes` | `id` | Full Refresh, Incremental |
+| `quotes` | `GET /v1/Quotes` | `id` | Full Refresh, Incremental |
+| `branches` | `GET /v1/Branches` | `id` | Full Refresh, Incremental |
+| `branch_transfers` | `GET /v1/BranchTransfers` | `id` | Full Refresh, Incremental |
+| `adjustments` | `GET /v1/Adjustments` | `id` | Full Refresh, Incremental |
+| `bom_masters` | `GET /v2/BomMasters` | `id` | Full Refresh, Incremental |
+| `production_jobs` | `GET /v1/ProductionJobs` | `id` | Full Refresh, Incremental |
+| `product_categories` | `GET /v1/ProductCategories` | `id` | Full Refresh |
+| `product_options` | `GET /v1/ProductOptions` | `id` | Full Refresh, Incremental |
+| `serial_numbers` | `GET /v1/SerialNumbers` | `id` | Full Refresh, Incremental |
+| `size_ranges` | `GET /v1/SizeRanges` | `id` | Full Refresh |
+| `users` | `GET /v1/Users` | `id` | Full Refresh, Incremental |
+| `vouchers` | `GET /v1/Voucher` | `id` | Full Refresh, Incremental |
 
 > **Note:** The `stock` stream uses a composite primary key because records do not have a top-level `id` field.
+
+---
+
+## Incremental Sync
+
+Every stream with a `modifiedDate` field supports **Incremental** sync in addition to Full Refresh (`product_categories` and `size_ranges` have no `modifiedDate`, so they remain full-refresh only). Choose the sync mode per stream in Airbyte's connection settings — **Incremental | Append + Deduped** is recommended for the large streams (`sales_orders`, `products`, `contacts`, `stock`).
+
+How it works:
+
+- **Cursor field**: `modifiedDate`
+- **Server-side filtering**: each request sends `where=modifiedDate>='<cursor>'` together with `order=modifiedDate`, so only records changed since the last sync are fetched from the Cin7 API. This drastically reduces API calls (the API allows only 5,000/day) and the data volume Airbyte processes/bills.
+- **Lookback window**: 1 day. Each sync re-fetches records modified up to one day before the saved cursor to protect against late writes and clock skew; duplicates are removed by the primary key when using Append + Deduped.
+- **First sync**: starts from the optional `start_date` config value (default `2015-01-01T00:00:00Z`) and behaves like a full refresh of everything after that date. Subsequent syncs only pull changes.
+
+> **Tip:** If a stream ever misses updates because Cin7 doesn't bump `modifiedDate` for some change type, you can run an occasional full refresh of that stream (Airbyte lets you clear/reset a single stream) while keeping the rest incremental.
 
 ---
 
